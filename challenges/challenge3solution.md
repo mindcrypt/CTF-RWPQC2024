@@ -64,7 +64,7 @@ __Via Reverse Engineering__
 
 If instead you go straight to static analysis, you may load the binaries into Ghidra. If you look at the server binary, you can quickly find the location where the random seed is generated in the main method, as well as the names of functions from libOQS.
 
-![formula](challenges/images/image6.png)
+![formula](images/image6.png)
 
 The three key functions here are OQS_randombytes, and OQS_randombytes_switch_algorithm(“NIST_KAT”) and OQS_randombytes_nist_kat_init_256bit. NIST_KAT is a deterministic prng that we switch to, but we use the output of OQS_randombytes to generate a real random seed to feed to it. If you were to look up these functions inside of libOQS, you’ll notice tha the function signatures are wrong, which makes Ghidra’s decompiler output a little harder to follow.
 
@@ -78,12 +78,12 @@ OQS_API OQS_STATUS OQS_randombytes_switch_algorithm(const char *algorithm);
 You can right click on the functions in Ghidra and select “Edit Function Signature” to correct the function prototypes.
 After some editing, the decompiler output will look at follows:
 
-![formula](challenges/images/image7.png)
+![formula](images/image7.png)
 
 The decompiler output is still a bit messy, but you can see 24-bytes are AND’d with bytes set to 0x01, and the rest of the array is zeroed. This might be easier to parse in the disassembler than in the decompiler output.
 
 
-![formula](challenges/images/image8.png)
+![formula](images/image8.png)
 
 There are 128-bit SSE instructions, 16-byte wide, so the operations may get a little confusing.
 PXOR is operating on the 128-bit SSE register XMM0, performing the XOR operation to produce a 16 byte wide 0 value. The MOVAPS instruction moves those 16 bytes into the first 16-bytes of our random seed array, zeroing out those bytes. 
@@ -106,18 +106,18 @@ For the purposes of this write-up, we will be presenting a solution based on an 
 This is one unintentional additional issue to be solved via reverse engineering first though. While the protocol was mostly described correctly in our write-up and in the strings output by the binary, we used the TinyAES library to write this binary and, unintentionally, our build flag setting AES256 was not picked up by the TinyAES library. So while the binary does provide input from the KEM that should be used for 256-bit AES in a correct implementation, the AES library will only use 128-bits of the key.
 
 
-![formula](challenges/images/image9.png)
+![formula](images/image9.png)
 
 If you happen to determine that the AES library in use is TinyAES, you may have been able to figure out that it is in AES128 mode by the size of the AES_ctx structure here, which is 192 bytes, equal to the size of the 128-bit (16 byte) variant.
 
 
-![formula](challenges/images/image10.png)
+![formula](images/image10.png)
 
 
 Otherwise, you’ll need to determine either via debugging or reverse engineering that of the AES_init_ctx function (which resolves to KeyExpansion) that only 16 bytes are in use, creating a non-standard Kyber KEM variant.
 
 
-![formula](challenges/images/image11.png)
+![formula](images/image11.png)
 
 Now for the solution itself, you need to do the following (in pseudo code):
 
