@@ -33,7 +33,7 @@ A4 = [64,170,216,188,196,78,33,181,222,247,116,177,51,143,85,3]
 
 What follows is an example collision-based cryptanalysis code that retrieves $s_1$, $s_2$. Let:
 
-![formula](challenges/images/image1.png)
+![formula](images/image1.png)
 
 We are searching for two binary polynomials $s_1$, $s_2$ of degree 16 s.t. $f(s_1) - g(s_2)$ has coordinates $\in \{-1,0,+1\} \mod q$
 
