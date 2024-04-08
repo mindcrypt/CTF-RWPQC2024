@@ -20,8 +20,8 @@ It is now time to straighten out the whole story!
 
 __The real solution__
 
-![formula](challenges/images/image2.png)
-![formula](challenges/images/image3.png)
+![formula](images/image2.png)
+![formula](images/image3.png)
 
 ```python
 # Load trained model from csv
@@ -66,7 +66,7 @@ print('This is the known vector: %s' % known_vector)
 ```
 Let's recall the awesome equality (in red the unknowns, on the right what we just computed):
 
-![formula](challenges/images/image4.png)
+![formula](images/image4.png)
 
 The first coordinate reveals the value of 𝛼, and the other 16 coordinates (divided by 𝛼) reveal the missing datapoint 𝑥<sub>𝑁</sub>!
 ```Python
@@ -76,7 +76,7 @@ print("alpha: %s" % alpha)
 print("recovered x_500: %s" % recovered_xn)
 ```
 
-![formula](challenges/images/image5.png)
+![formula](images/image5.png)
 
 ```Python
 final_xn = np.round(recovered_xn)
